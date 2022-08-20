@@ -1,0 +1,27 @@
+{% extends './includes/base.html' %}
+{% block titulo %}
+Admin
+{% endblock %}
+{% block contenido %}
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a href="/docente" class="navbar-brand">Sistema kinder</a>
+    <div class="d-flex">
+      <div class="dropdown me-3">
+        <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Paralelos
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          {% for i in data['paralelos'] %}
+            <li><a class="dropdown-item" href="/docente/{{i['_id']}}">{{i['nombre']}}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      <a class="btn btn-danger me-3" href="/salir">Salir</a>
+    </div>
+  </div>
+</nav>
+<div class="container-fluid">
+  <h1>Panel de docente</h1>
+</div>
+{% endblock %}

@@ -1,12 +1,15 @@
 from flask import Flask, render_template, request 
 from flask import redirect, session
+import uuid
+from os import path
 
-from modelos import Administrador
+from modelos import Administrador, Docente
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 administrador = Administrador()
+docente = Docente()
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -14,6 +17,7 @@ def login():
     if 'usuario' in session:
       if session['usuario']['rol'] == 'administrador':
         return redirect('/admin')
+      return redirect('/docente')
     return render_template('login.html')
   try:
     usuario = administrador.login(request.form['email'], request.form['password'])
@@ -21,7 +25,7 @@ def login():
     session['usuario'] = usuario
     if usuario['rol'] == 'administrador':
       return redirect('/admin')
-    return 'Panel de docente'
+    return redirect('/docente')
   except Exception as error:
     return render_template('login.html',data={'error':error.__str__()})
 
@@ -65,7 +69,6 @@ def adminCurso():
   cursos = administrador.obtenerCursos()
   return render_template('panel_admin_curso.html',data={'cursos':cursos})
   
-
 
 @app.route('/admin/curso/eliminar/<id>',methods=['GET'])
 def adminCursoEliminar(id):
@@ -115,12 +118,94 @@ def adminDocenteEliminar(id):
   return redirect('/admin/docente')
 
 
+@app.route('/admin/paralelo', methods=['GET','POST'])
+def adminParalelo():
+  if administradorLogueado() == False:
+    return redirect('/')
+
+  data = {}
+
+  if request.method == 'POST':
+    try:
+      administrador.agregarParalelo(
+        request.form['nombre'],
+        request.form['curso'],
+        request.form['docente']
+      )
+    except Exception as error:
+      data['error'] = error.__str__()
+  data['cursos'] = administrador.obtenerCursos()
+  data['docentes'] = administrador.obtenerDocentes()
+  data['paralelos'] = administrador.obtenerParalelos()
+  return render_template('panel_admin_paralelo.html',data=data)
+
+@app.route('/admin/paralelo/eliminar/<id>',methods=['GET'])
+def adminParaleloEliminar(id):
+  if administradorLogueado() == False:
+    return redirect('/')
+
+  administrador.eliminarParalelo(id)
+  return redirect('/admin/paralelo')
+
+@app.route('/admin/estudiante',methods=['GET','POST'])
+def adminEstudiante():
+  if administradorLogueado() == False:
+    return redirect('/')
+
+  data = {}
+
+  if request.method == 'POST':
+    foto = request.files['foto']
+    raiz,extension = path.splitext(foto.filename)
+    nuevoNombreFoto = f'{uuid.uuid4()}{extension}'
+    foto.save(f'./static/{nuevoNombreFoto}')
+    administrador.agregarEstudiante(
+      request.form['nombre'],
+      request.form['paralelo'],
+      nuevoNombreFoto
+    )
+
+  data['estudiantes'] = administrador.obtenerEstudiantes()
+  data['paralelos'] = administrador.obtenerParalelos()
+  return render_template('panel_admin_estudiante.html',data=data)
+  
+@app.route('/admin/estudiante/eliminar/<id>',methods=['GET'])
+def adminEstudianteEliminar(id):
+  if administradorLogueado() == False:
+    return redirect('/')
+
+  administrador.eliminarEstudiante(id)
+  return redirect('/admin/estudiante')
+
+@app.route('/docente',methods=['GET'])
+def panelDocente():
+  if docenteLogueado() == False:
+    return redirect('/')
+  data = {'paralelos': docente.obtenerParalelos(session['usuario']['_id'])}
+  print(data)
+  return render_template('panel_docente.html',data=data)
+
+@app.route('/docente/<_paralelo>',methods=['GET'])
+def panelDocente(_paralelo):
+  if docenteLogueado() == False:
+    return redirect('/')
+  data = {'paralelos': docente.obtenerParalelos(session['usuario']['_id'])}
+  print(data)
+  return render_template('panel_docente.html',data=data)
+
 
 
 def administradorLogueado():
   if 'usuario' not in session:
     return False
   if session['usuario']['rol'] != 'administrador':
+    return False
+  return True
+
+def docenteLogueado():
+  if 'usuario' not in session:
+    return False
+  if session['usuario']['rol'] != 'docente':
     return False
   return True
 
