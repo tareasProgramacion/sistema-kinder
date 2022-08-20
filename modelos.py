@@ -27,6 +27,13 @@ class Administrador:
     
     return usuario
 
+  def loginEstudiante(self, _estudiante):
+    estudiante = mongo.dbkinder.estudiantes.find_one({'_id':ObjectId(_estudiante)})
+    if estudiante:
+      estudiante['_id'] = str(estudiante['_id'])
+    return estudiante
+    
+
   def agregarAdministrador(self, nombre, email, password):
     existeEmail = mongo.dbkinder.usuarios.find_one({'email':email})
     if existeEmail:
@@ -65,7 +72,6 @@ class Administrador:
   def eliminarCurso(self, id:str):
     return mongo.dbkinder.cursos.delete_one({'_id':ObjectId(id)})
   
-
   def obtenerDocentes(self):
     lista = []
     for i in mongo.dbkinder.usuarios.find({'rol':'docente'}):
@@ -141,6 +147,12 @@ class Administrador:
 
   def eliminarEstudiante(self, id):
     return mongo.dbkinder.estudiantes.delete_one({'_id':ObjectId(id)})
+
+  def agregarNotaEstudiante(self, _estudiante, nota):
+    estudiante = mongo.dbkinder.estudiantes.find_one({'_id':ObjectId(_estudiante)})
+    if estudiante:
+      estudiante['notas'].append(nota)
+      mongo.dbkinder.estudiantes.update_one({'_id':ObjectId(_estudiante)},{'$set':{'notas':estudiante['notas']}})
 
 class Docente:
   def obtenerParalelos(self, _docente):

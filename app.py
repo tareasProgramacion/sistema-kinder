@@ -18,6 +18,8 @@ def login():
       if session['usuario']['rol'] == 'administrador':
         return redirect('/admin')
       return redirect('/docente')
+    if 'estudiante' in session:
+      return redirect('/estudiante')
     return render_template('login.html')
   try:
     usuario = administrador.login(request.form['email'], request.form['password'])
@@ -28,6 +30,23 @@ def login():
     return redirect('/docente')
   except Exception as error:
     return render_template('login.html',data={'error':error.__str__()})
+
+@app.route('/login/estudiante',methods=['GET'])
+def loginEstudiante():
+  data = {'estudiantes': administrador.obtenerEstudiantes()}
+  return render_template('login_estudiante.html',data=data)
+
+@app.route('/login/estudiante/<_estudiante>',methods=['GET'])
+def loginEstudianteId(_estudiante):
+  estudiante = administrador.loginEstudiante(_estudiante)
+  if estudiante:
+    session['estudiante'] = {
+      '_id': _estudiante,
+      'nombre':estudiante['nombre']
+    }
+    return redirect('/estudiante')
+  
+  return redirect('/login/estudiante')
 
 @app.route('/registro', methods=['GET','POST'])
 def registro():
@@ -194,6 +213,33 @@ def panelDocenteEstudiantes(_paralelo):
   return render_template('panel_docente_estudiante.html',data=data)
 
 
+@app.route('/estudiante',methods=['GET'])
+def estudiante():
+  if estudianteLogueado() == False:
+    redirect('/')
+  
+  return render_template('panel_estudiante.html')
+
+@app.route('/estudiante/practicar',methods=['GET'])
+def practicar():
+  if estudianteLogueado() == False:
+    redirect('/')
+  
+  return render_template('practicar.html')
+
+@app.route('/estudiante/jugar',methods=['GET'])
+def jugar():
+  if estudianteLogueado() == False:
+    redirect('/')
+  
+  return render_template('jugar.html')
+
+@app.route('/estudiante/jugar/<int:nota>',methods=['GET'])
+def jugarPuntaje(nota:int):
+  if estudianteLogueado() == False:
+    redirect('/')
+  administrador.agregarNotaEstudiante(session['estudiante']['_id'],nota)
+  return redirect('/estudiante')
 
 def administradorLogueado():
   if 'usuario' not in session:
@@ -206,6 +252,11 @@ def docenteLogueado():
   if 'usuario' not in session:
     return False
   if session['usuario']['rol'] != 'docente':
+    return False
+  return True
+
+def estudianteLogueado():
+  if 'estudiante' not in session:
     return False
   return True
 

@@ -1,0 +1,23 @@
+{% extends './includes/base.html' %}
+{% block titulo %}
+Login Estudiante
+{% endblock %}
+{% block contenido %}
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a href="/" class="navbar-brand">Sistema kinder</a>
+  </div>
+</nav>
+<div class="container-fluid">
+  <div class="d-flex flex-wrap justify-content-center">
+    {% for i in data['estudiantes']  %}
+      <div class="card col-4 col-sm-3 col-lg-2 mt-2 me-2">
+        <img class="img img-fluid" src="{{url_for('static',filename=i['foto'])}}" alt="...">
+        <div class="card-body">
+          <a href="/login/estudiante/{{i['_id']}}" class="card-title">{{i['nombre']}}</a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
