@@ -56,7 +56,7 @@ def admin():
   if administradorLogueado() == False:
     return redirect('/')
 
-  return render_template('panel_admin.html')
+  return render_template('panel_admin.html',data={'usuario':session['usuario']})
 
 
 @app.route('/admin/curso',methods=['GET','POST'])
@@ -182,16 +182,16 @@ def panelDocente():
   if docenteLogueado() == False:
     return redirect('/')
   data = {'paralelos': docente.obtenerParalelos(session['usuario']['_id'])}
-  print(data)
+  data['usuario'] = session['usuario']
   return render_template('panel_docente.html',data=data)
 
 @app.route('/docente/<_paralelo>',methods=['GET'])
-def panelDocente(_paralelo):
+def panelDocenteEstudiantes(_paralelo):
   if docenteLogueado() == False:
     return redirect('/')
   data = {'paralelos': docente.obtenerParalelos(session['usuario']['_id'])}
-  print(data)
-  return render_template('panel_docente.html',data=data)
+  data['estudiantes'] = docente.obtenerEstudiantes(_paralelo)
+  return render_template('panel_docente_estudiante.html',data=data)
 
 
 

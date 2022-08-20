@@ -23,13 +23,38 @@ Docente
 </nav>
 <div class="container-fluid">
   <div class="row justify-content-center mt-5">
-    <div class="col-5 col-md-4 col-lg-3">
+    <div class="col-7">
       <div class="card">
-        <img src="{{url_for('static',filename='docente.jpg')}}" class="card-img-top" alt="...">
+        <div class="card-header">
+          <h1 class="text-center">Lista de estudiantes</h1>
+        </div>
         <div class="card-body">
-          <h5 class="card-title">Docente</h5>
-          <p class="card-text">{{data['usuario']['nombre']}}</p>
-          <p class="card-text">{{data['usuario']['email']}}</p>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Foto</th>
+                <th>Promedio</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if data['estudiantes'] %}
+                {% for i in data['estudiantes']%}
+                  <tr>
+                    <td>{{i['nombre']}}</td>
+                    <td>
+                      <img height="100px" src="{{ url_for('static', filename=i['foto']) }}" alt="perfil">
+                    </td>
+                    <td>{{i['promedio']}}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td class="text-center" colspan="3">No hay estudiantes ó no ha escojido un paralelo 😥</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

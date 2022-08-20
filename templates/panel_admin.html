@@ -16,7 +16,17 @@ Admin
   </div>
 </nav>
 <div class="container-fluid">
-  <h1>Panel de administración</h1>
-
+  <div class="row justify-content-center mt-5">
+    <div class="col-5 col-md-4 col-lg-3">
+      <div class="card">
+        <img src="{{url_for('static',filename='admin.png')}}" class="card-img-top" alt="...">
+        <div class="card-body">
+          <h5 class="card-title">Administrador</h5>
+          <p class="card-text">{{data['usuario']['nombre']}}</p>
+          <p class="card-text">{{data['usuario']['email']}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
